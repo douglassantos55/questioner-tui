@@ -10,15 +10,22 @@ type Loader interface {
 }
 
 type LocalLoader struct {
+	Parser Parser
 }
 
 func NewLocalLoader(parser Parser) LocalLoader {
 	return LocalLoader{
+		Parser: parser,
 	}
 }
 
 func (l LocalLoader) GetTopics(source string) []Topic {
 	topics := make([]Topic, 0)
+	for _, path := range l.GetFiles(source) {
+		if contents, err := os.ReadFile(path); err == nil {
+			topics = append(topics, l.Parser.Parse(contents))
+		}
+	}
 	return topics
 }
 
