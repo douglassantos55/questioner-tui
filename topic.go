@@ -9,8 +9,9 @@ type Topic struct {
 	Title     string
 	Questions []Question
 
-	visited *list.List
-	current *list.Element
+	visited  *list.List
+	current  *list.Element
+	selected map[int]*Question
 }
 
 type Question struct {
@@ -23,7 +24,8 @@ func NewTopic(title string, questions []Question) Topic {
 		Title:     title,
 		Questions: questions,
 
-		visited: list.New(),
+		visited:  list.New(),
+		selected: make(map[int]*Question),
 	}
 }
 
@@ -42,17 +44,16 @@ func (t *Topic) NextQuestion() *Question {
 }
 
 func (t Topic) GetRandomQuestion() *Question {
-	count := 0
-	var selected *Question
-	for count < len(t.Questions) && selected == nil {
-		index := rand.Intn(len(t.Questions))
-		selected = &t.Questions[index]
-		for cur := t.visited.Front(); cur != nil; cur = cur.Next() {
-			if selected == cur.Value.(*Question) {
-				selected = nil
-			}
-		}
-		count++
+	if t.visited.Len() == len(t.Questions) {
+		return nil
 	}
-	return selected
+
+	var index int
+	for t.selected[index] != nil {
+		index = rand.Intn(len(t.Questions))
+	}
+
+	question := &t.Questions[index]
+	t.selected[index] = question
+	return question
 }
