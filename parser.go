@@ -1,8 +1,6 @@
 package main
 
-import (
-	"strings"
-)
+import "strings"
 
 type Parser interface {
 	Parse(contents []byte) Topic
@@ -22,7 +20,8 @@ func (MarkdownParser) Parse(contents []byte) Topic {
 			continue
 		}
 
-		if strings.HasPrefix(line, "##") {
+		count := strings.Count(line, "#")
+		if count == 2 {
 			if len(answerLines) > 0 {
 				topic.AddQuestion(Question{
 					Statement: statement,
@@ -31,7 +30,7 @@ func (MarkdownParser) Parse(contents []byte) Topic {
 				answerLines = make([]string, 0)
 			}
 			statement = strings.Trim(strings.Replace(line, "##", "", -1), " ")
-		} else if strings.HasPrefix(line, "#") {
+		} else if count == 1 {
 			topic.Title = strings.Trim(strings.Replace(line, "#", "", -1), " ")
 		} else {
 			answerLines = append(answerLines, line)
