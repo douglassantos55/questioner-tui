@@ -32,4 +32,31 @@ func TestTopic(t *testing.T) {
 			}
 		}
 	})
+
+	t.Run("previous question", func(t *testing.T) {
+		topic := NewTopic("A topic", []Question{
+			{Statement: "Q1", Answer: "A1"},
+			{Statement: "Q2", Answer: "A2"},
+			{Statement: "Q3", Answer: "A3"},
+			{Statement: "Q4", Answer: "A4"},
+		})
+
+		if prev := topic.PrevQuestion(); prev != nil {
+			t.Errorf("Expected nil, got %v", prev)
+		}
+
+		questions := []*Question{
+			topic.NextQuestion(),
+			topic.NextQuestion(),
+			topic.NextQuestion(),
+			topic.NextQuestion(),
+		}
+
+		for i := len(topic.Questions) - 2; i >= 0; i-- {
+			prev := topic.PrevQuestion()
+			if prev != questions[i] {
+				t.Errorf("Expected %v, got %v", questions[i], prev)
+			}
+		}
+	})
 }

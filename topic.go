@@ -43,6 +43,14 @@ func (t *Topic) NextQuestion() *Question {
 	return t.current.Value.(*Question)
 }
 
+func (t *Topic) PrevQuestion() *Question {
+	if t.current == nil || t.current.Prev() == nil {
+		return nil
+	}
+	t.current = t.current.Prev()
+	return t.current.Value.(*Question)
+}
+
 func (t Topic) GetRandomQuestion() *Question {
 	if t.visited.Len() == len(t.Questions) {
 		return nil
