@@ -13,12 +13,14 @@ func Contains(needle Question, haystack []Question) bool {
 
 func TestTopic(t *testing.T) {
 	t.Run("next question", func(t *testing.T) {
-		topic := NewTopic("A topic", []Question{
+		topic := NewTopic()
+		topic.Title = "A topic"
+		topic.Questions = []Question{
 			{Statement: "Q1", Answer: "A1"},
 			{Statement: "Q2", Answer: "A2"},
 			{Statement: "Q3", Answer: "A3"},
 			{Statement: "Q4", Answer: "A4"},
-		})
+		}
 
 		seen := []Question{}
 		for len(seen) < len(topic.Questions) {
@@ -34,12 +36,14 @@ func TestTopic(t *testing.T) {
 	})
 
 	t.Run("previous question", func(t *testing.T) {
-		topic := NewTopic("A topic", []Question{
+		topic := NewTopic()
+		topic.Title = "A topic"
+		topic.Questions = []Question{
 			{Statement: "Q1", Answer: "A1"},
 			{Statement: "Q2", Answer: "A2"},
 			{Statement: "Q3", Answer: "A3"},
 			{Statement: "Q4", Answer: "A4"},
-		})
+		}
 
 		if prev := topic.PrevQuestion(); prev != nil {
 			t.Errorf("Expected nil, got %v", prev)
@@ -56,6 +60,13 @@ func TestTopic(t *testing.T) {
 			prev := topic.PrevQuestion()
 			if prev != questions[i] {
 				t.Errorf("Expected %v, got %v", questions[i], prev)
+			}
+		}
+
+		for i := 1; i < len(topic.Questions); i++ {
+			next := topic.NextQuestion()
+			if next != questions[i] {
+				t.Errorf("Expected %v, got %v", questions[i], next)
 			}
 		}
 	})

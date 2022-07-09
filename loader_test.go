@@ -89,8 +89,10 @@ func TestLoader(t *testing.T) {
 			},
 		}
 
-		if !reflect.DeepEqual(got, expected) {
-			t.Errorf("Expected %v, got %v", expected, got)
+		for i, topic := range got {
+			if topic.Title != expected[i].Title || !reflect.DeepEqual(topic.Questions, expected[i].Questions) {
+				t.Errorf("Expected %v, got %v", expected[i], topic)
+			}
 		}
 	})
 }

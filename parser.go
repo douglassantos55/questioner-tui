@@ -9,7 +9,7 @@ type Parser interface {
 type MarkdownParser struct{}
 
 func (MarkdownParser) Parse(contents []byte) Topic {
-	topic := Topic{}
+	topic := NewTopic()
 
 	statement := ""
 	answerLines := make([]string, 0)

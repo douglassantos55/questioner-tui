@@ -19,11 +19,8 @@ type Question struct {
 	Answer    string
 }
 
-func NewTopic(title string, questions []Question) Topic {
+func NewTopic() Topic {
 	return Topic{
-		Title:     title,
-		Questions: questions,
-
 		visited:  list.New(),
 		selected: make(map[int]*Question),
 	}
@@ -39,6 +36,8 @@ func (t *Topic) NextQuestion() *Question {
 		if next != nil {
 			t.current = t.visited.PushBack(next)
 		}
+	} else if t.current.Next() != nil {
+		t.current = t.current.Next()
 	}
 	return t.current.Value.(*Question)
 }
@@ -51,7 +50,7 @@ func (t *Topic) PrevQuestion() *Question {
 	return t.current.Value.(*Question)
 }
 
-func (t Topic) GetRandomQuestion() *Question {
+func (t *Topic) GetRandomQuestion() *Question {
 	if t.visited.Len() == len(t.Questions) {
 		return nil
 	}
