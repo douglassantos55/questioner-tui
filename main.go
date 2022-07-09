@@ -7,15 +7,23 @@ import (
 	"github.com/rivo/tview"
 )
 
+func SetText(view *tview.TextView, question *Question, topic *Topic, showAnswer bool) {
+	if showAnswer {
+		view.SetText(fmt.Sprintf("(%d/%d) %s\n\n%s", topic.Index(), len(topic.Questions), question.Statement, question.Answer))
+	} else {
+		view.SetText(fmt.Sprintf("(%d/%d) %s", topic.Index(), len(topic.Questions), question.Statement))
+	}
+}
+
 func PrevQuestion(view *tview.TextView, topic *Topic) {
 	if question := topic.PrevQuestion(); question != nil {
-		view.SetText(fmt.Sprintf("(%d/%d) %s", topic.Index(), len(topic.Questions), question.Statement))
+		SetText(view, question, topic, false)
 	}
 }
 
 func NextQuestion(view *tview.TextView, topic *Topic) {
 	if question := topic.NextQuestion(); question != nil {
-		view.SetText(fmt.Sprintf("(%d/%d) %s", topic.Index(), len(topic.Questions), question.Statement))
+		SetText(view, question, topic, false)
 	}
 }
 
@@ -40,7 +48,7 @@ func main() {
 		}
 		if event.Rune() == 'a' {
 			question := selectedTopic.current.Value.(*Question)
-			topicView.SetText(fmt.Sprintf("(%d/%d) %s\n\n%s", selectedTopic.Index(), len(selectedTopic.Questions), question.Statement, question.Answer))
+			SetText(topicView, question, selectedTopic, true)
 		}
 		return event
 	})
