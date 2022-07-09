@@ -7,64 +7,30 @@ import (
 	"github.com/rivo/tview"
 )
 
-func SetText(view *tview.TextView, question *Question, topic *Topic, showAnswer bool) {
-	if showAnswer {
-		view.SetText(fmt.Sprintf("(%d/%d) %s\n\n%s", topic.Index(), len(topic.Questions), question.Statement, question.Answer))
-	} else {
-		view.SetText(fmt.Sprintf("(%d/%d) %s", topic.Index(), len(topic.Questions), question.Statement))
-	}
-}
-
-func PrevQuestion(view *tview.TextView, topic *Topic) {
-	if question := topic.PrevQuestion(); question != nil {
-		SetText(view, question, topic, false)
-	}
-}
-
-func NextQuestion(view *tview.TextView, topic *Topic) {
-	if question := topic.NextQuestion(); question != nil {
-		SetText(view, question, topic, false)
-	}
-}
-
 func main() {
-	var selectedTopic *Topic
 	app := tview.NewApplication()
+
 	pages := tview.NewPages()
 	pages.SetBorderPadding(1, 1, 1, 1)
 
-	topicView := tview.NewTextView()
-	topicView.SetDoneFunc(func(key tcell.Key) {
-		selectedTopic.Reset()
-		pages.SwitchToPage("topics")
-	})
-
-	topicView.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
-		if event.Key() == tcell.KeyRight || event.Rune() == 'l' {
-			NextQuestion(topicView, selectedTopic)
-		}
-		if event.Key() == tcell.KeyLeft || event.Rune() == 'h' {
-			PrevQuestion(topicView, selectedTopic)
-		}
-		if event.Rune() == 'a' {
-			question := selectedTopic.current.Value.(*Question)
-			SetText(topicView, question, selectedTopic, true)
-		}
-		return event
-	})
-	pages.AddPage("topic", topicView, true, false)
-
 	list := tview.NewList()
+
 	loader := NewLocalLoader(NewMarkdownParser())
 	loader.GetTopics("test")
+
 	list.SetDoneFunc(func() {
 		app.Stop()
 	})
 
 	changePage := func(topic Topic) func() {
 		return func() {
-			selectedTopic = &topic
-			pages.SwitchToPage("topic")
+			view := NewTopicView(&topic)
+			pages.AddAndSwitchToPage("topic", view.View, true)
+
+			view.View.SetDoneFunc(func(key tcell.Key) {
+				view.Done()
+				pages.RemovePage("topic")
+			})
 		}
 	}
 
@@ -91,14 +57,6 @@ func main() {
 			app.Stop()
 		}
 		return event
-	})
-
-	pages.SetChangedFunc(func() {
-		name, view := pages.GetFrontPage()
-		switch name {
-		case "topic":
-			NextQuestion(view.(*tview.TextView), selectedTopic)
-		}
 	})
 
 	if err := app.SetRoot(pages, true).Run(); err != nil {
