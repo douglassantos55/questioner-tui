@@ -38,6 +38,10 @@ func main() {
 		if event.Key() == tcell.KeyLeft || event.Rune() == 'h' {
 			PrevQuestion(topicView, selectedTopic)
 		}
+		if event.Rune() == 'a' {
+			question := selectedTopic.current.Value.(*Question)
+			topicView.SetText(fmt.Sprintf("(%d/%d) %s\n\n%s", selectedTopic.Index(), len(selectedTopic.Questions), question.Statement, question.Answer))
+		}
 		return event
 	})
 	pages.AddPage("topic", topicView, true, false)
