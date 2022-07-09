@@ -30,6 +30,11 @@ func (t *Topic) AddQuestion(question Question) {
 	t.Questions = append(t.Questions, question)
 }
 
+func (t *Topic) Reset() {
+	t.visited = list.New()
+	t.selected = make(map[int]*Question)
+}
+
 func (t *Topic) NextQuestion() *Question {
 	if t.current == nil || t.current.Next() == nil {
 		next := t.GetRandomQuestion()
