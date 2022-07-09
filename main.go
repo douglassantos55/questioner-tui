@@ -1,26 +1,29 @@
 package main
 
 import (
-	"log"
-	"os"
+	"fmt"
 
 	"github.com/gdamore/tcell/v2"
 	"github.com/rivo/tview"
 )
 
-func main() {
-	f, err := os.OpenFile("testlogfile", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
-	if err != nil {
-		log.Fatalf("error opening file: %v", err)
+func PrevQuestion(view *tview.TextView, topic *Topic) {
+	if question := topic.PrevQuestion(); question != nil {
+		view.SetText(fmt.Sprintf("(%d/%d) %s", topic.Index(), len(topic.Questions), question.Statement))
 	}
-	defer f.Close()
+}
 
-	log.SetOutput(f)
+func NextQuestion(view *tview.TextView, topic *Topic) {
+	if question := topic.NextQuestion(); question != nil {
+		view.SetText(fmt.Sprintf("(%d/%d) %s", topic.Index(), len(topic.Questions), question.Statement))
+	}
+}
 
+func main() {
 	var selectedTopic *Topic
 	app := tview.NewApplication()
 	pages := tview.NewPages()
-	pages.SetBorder(true)
+	pages.SetBorderPadding(1, 1, 1, 1)
 
 	topicView := tview.NewTextView()
 	topicView.SetDoneFunc(func(key tcell.Key) {
@@ -30,13 +33,10 @@ func main() {
 
 	topicView.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
 		if event.Key() == tcell.KeyRight || event.Rune() == 'l' {
-			question := selectedTopic.NextQuestion()
-			topicView.SetText(question.Statement)
+			NextQuestion(topicView, selectedTopic)
 		}
 		if event.Key() == tcell.KeyLeft || event.Rune() == 'h' {
-			if question := selectedTopic.PrevQuestion(); question != nil {
-				topicView.SetText(question.Statement)
-			}
+			PrevQuestion(topicView, selectedTopic)
 		}
 		return event
 	})
@@ -57,7 +57,7 @@ func main() {
 	}
 
 	for _, topic := range loader.GetTopics("test") {
-		list.AddItem(topic.Title, "", 0, changePage(topic))
+		list.AddItem(fmt.Sprintf("%s (%d)", topic.Title, len(topic.Questions)), "", 0, changePage(topic))
 	}
 
 	list.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
@@ -85,9 +85,7 @@ func main() {
 		name, view := pages.GetFrontPage()
 		switch name {
 		case "topic":
-			if question := selectedTopic.NextQuestion(); question != nil {
-				view.(*tview.TextView).SetText(question.Statement)
-			}
+			NextQuestion(view.(*tview.TextView), selectedTopic)
 		}
 	})
 
