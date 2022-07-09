@@ -29,11 +29,11 @@ func main() {
 	})
 
 	topicView.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
-		if event.Key() == tcell.KeyRight {
+		if event.Key() == tcell.KeyRight || event.Rune() == 'l' {
 			question := selectedTopic.NextQuestion()
 			topicView.SetText(question.Statement)
 		}
-		if event.Key() == tcell.KeyLeft {
+		if event.Key() == tcell.KeyLeft || event.Rune() == 'h' {
 			if question := selectedTopic.PrevQuestion(); question != nil {
 				topicView.SetText(question.Statement)
 			}
@@ -60,7 +60,26 @@ func main() {
 		list.AddItem(topic.Title, "", 0, changePage(topic))
 	}
 
+	list.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
+		if event.Rune() == 'j' || event.Key() == tcell.KeyDown {
+			list.SetCurrentItem(list.GetCurrentItem() + 1)
+		}
+
+		if event.Rune() == 'k' || event.Key() == tcell.KeyUp {
+			list.SetCurrentItem(list.GetCurrentItem() - 1)
+		}
+
+		return event
+	})
+
 	pages.AddPage("topics", list, true, true)
+
+	pages.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
+		if event.Rune() == 'q' {
+			app.Stop()
+		}
+		return event
+	})
 
 	pages.SetChangedFunc(func() {
 		name, view := pages.GetFrontPage()
